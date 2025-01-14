@@ -9,17 +9,22 @@ from tkinter import Tk
 from tkinter import Frame
 from modelo import operaciones
 from datetime import datetime
+import time
+from plyer import notification
+import threading
 
 
 
 class Ventana:
     def __init__(self, ventana):
-        self.objeto_uno = operaciones()
+        #self.objeto_uno = operaciones()
         self.aplicacion = ventana
 
         self.valor_mensajes = StringVar()
         self.valor_busqueda = StringVar()
         self.valor_horario = StringVar()
+
+        self.objeto_uno = operaciones(self.valor_mensajes, self.valor_horario)
 
         self.titulo = Label(
             self.aplicacion,
@@ -56,7 +61,7 @@ class Ventana:
         self.botones_frame.grid(row=4, column=0, columnspan=4, pady=10, sticky="ew")
 
         # Botones dentro del Frame
-        self.boton_alta = Button(self.botones_frame, text="Alta", bg="royal blue", fg="white", command=lambda: self.aviso_alta(self.valor_mensajes, self.tree))
+        self.boton_alta = Button(self.botones_frame, text="Alta", bg="royal blue", fg="white", command=lambda: self.aviso_alta(self.valor_mensajes, self.entry_horario, self.tree))
         self.boton_alta.grid(row=0, column=0, padx=5, pady=5)
 
         self.boton_modificar = Button(self.botones_frame, text="Modificar", bg="royal blue", fg="white", command=lambda: self.aviso_modificar())
@@ -107,20 +112,7 @@ class Ventana:
 
     # METODOS-----------------------------------------------------------
 
-    """def aviso_alta(self, valor_mensajes, tree):
-        retorno = self.objeto_uno.funcion_alta(
-            self.valor_mensajes,
-            tree,
-        )
-        if messagebox.showinfo("Base Clientes", retorno):
-            Label(
-                self.aplicacion, font="Courier, 10", fg="blue2"
-            ).place(x=280, y=100)
-        else:
-            messagebox.showinfo("Base Clientes", retorno)
-"""
-
-    def aviso_alta(self, valor_mensajes, tree):
+    def aviso_alta(self, valor_mensajes, valor_horario, tree):
         mensaje = self.valor_mensajes.get().strip()
         horario = self.valor_horario.get().strip()
 
@@ -139,6 +131,7 @@ class Ventana:
         # Llama a la función de alta
         retorno = self.objeto_uno.funcion_alta(
         self.valor_mensajes,
+        self.valor_horario,
         tree,
         )
         if messagebox.showinfo("Base Clientes", retorno):
@@ -163,7 +156,9 @@ class Ventana:
         if seleccionado:
             item = self.tree.item(seleccionado[0])  # Obtiene datos del registro
             mensaje = item["values"][0]  # Extrae el valor del mensaje
+            horario = item["values"][1]
             self.valor_mensajes.set(mensaje) 
+            self.valor_horario.set(horario)
              # Muestra el mensaje en el Entry
     
                
@@ -171,6 +166,7 @@ class Ventana:
     def aviso_modificar(self):
         retorno = self.objeto_uno.funcion_modificar(
             self.valor_mensajes,
+            self.valor_horario,
             self.tree,
         )
         messagebox.showinfo("Base Clientes", retorno)
@@ -182,3 +178,6 @@ class Ventana:
     ):
         self.objeto_uno.funcion_actualizar(self.tree)
 
+
+    
+    
