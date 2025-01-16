@@ -8,7 +8,8 @@ from plyer import notification
 import threading
 from tkinter import Tk, Label, Button, Toplevel
 import threading
-
+from threading import Thread
+import tkinter as tk
 
 
 db = SqliteDatabase("base_ejemplo.db")
@@ -124,21 +125,56 @@ class operaciones:
         return "Registro modificado"
     
 
+
+    def mostrar_notificacion(self, mensaje, duracion=5):
+        ventana = tk.Toplevel()
+        ventana.geometry("500x250")  # Tamaño de la ventana
+        ventana.configure(bg="red")  # Fondo rojo
+        ventana.overrideredirect(True)  # Quitar barra de título
+        ventana.attributes("-topmost", True)  # Siempre visible
+
+        # Centrar la ventana en la pantalla
+        ventana.update_idletasks()
+        ancho_pantalla = ventana.winfo_screenwidth()
+        alto_pantalla = ventana.winfo_screenheight()
+        x = (ancho_pantalla // 2) - (300 // 2)
+        y = (alto_pantalla // 2) - (100 // 2)
+        ventana.geometry(f"+{x}+{y}")
+
+        # Texto de la notificación
+        etiqueta = tk.Label(
+           ventana,
+            text=mensaje,
+            font=("Helvetica", 14, "bold"),
+            fg="white",
+            bg="red",
+            wraplength=350,  # Ajusta el texto si es muy largo
+            justify="center",
+        )
+        etiqueta.pack(pady=20)
+        # Botón para cerrar la ventana
+        boton_aceptar = tk.Button(
+            ventana,
+            text="Aceptar",
+            font=("Helvetica", 12, "bold"),
+            bg="white",
+            fg="red",
+            command=ventana.destroy,  # Cierra la ventana
+        )
+        boton_aceptar.pack(pady=10)
+       
+        ventana.mainloop()
+
+
+
+
     def verificar_horario(self):
         while True:
-            # Obtén el mensaje y el horario almacenado
-            mensaje = self.valor_mensajes.get()  # Asume que el mensaje está en un Entry
-            horario = self.valor_horario.get()  # Asume que el horario está en un Entry
-
-            # Verifica si el horario actual coincide con el horario registrado
-            if horario == datetime.now().strftime("%H:%M"):
-                # Muestra la notificación
-                notification.notify(
-                    title="¡Recordatorio!",
-                    message=mensaje,
-                    timeout=10  # Duración de la notificación
-                )
-           
+            registros = Mensajes.select()  # Recupera todos los mensajes y horarios
+            for registro in registros:
+                if registro.horario == datetime.now().strftime("%H:%M"):
+                    Thread(target=self.mostrar_notificacion, args=(registro.mensajes,)).start()
+                
             time.sleep(30)
 
     
@@ -149,4 +185,51 @@ class operaciones:
         verificador.start()
     
 
+
+
+    #---------Prueba-------------------------------------------------------------------------------------
     
+    def funcion_buscar(
+        self,
+        tree,
+        busqueda,
+    ):
+
+        busqueda = busqueda.get()
+        records = tree.get_children()
+        global my_data
+        for element in records:
+            tree.delete(element)
+            buscar = (
+                Clientes.select().where(Clientes.id.contains(busqueda))
+                | Clientes.select().where(Clientes.cuenta.contains(busqueda))
+                | Clientes.select().where(Clientes.reparto.contains(busqueda))
+                | Clientes.select().where(Clientes.numero_de_cliente.contains(busqueda))
+                | Clientes.select().where(Clientes.sucursal.contains(busqueda))
+                | Clientes.select().where(Clientes.razonsocial.contains(busqueda))
+                | Clientes.select().where(Clientes.direccion.contains(busqueda))
+                | Clientes.select().where(Clientes.localidad.contains(busqueda))
+            )
+            buscar.execute()
+        try:
+            for fila in buscar:
+                tree.insert(
+                    "",
+                    "end",
+                    text=fila.id,
+                    values=(
+                        fila.cuenta,
+                        fila.reparto,
+                        fila.numero_de_cliente,
+                        fila.sucursal,
+                        fila.razonsocial,
+                        fila.direccion,
+                        fila.localidad,
+                    ),
+                )
+        except:
+            print(f"No se enontro ningun registro con la busqueda: '{busqueda}'")
+        else:
+            print(
+                f"El resultado es :  ID={fila.id}, Cuenta={fila.cuenta}, Reparto={fila.reparto}, Razon Social={fila.razonsocial}"
+            )
