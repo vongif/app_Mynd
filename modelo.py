@@ -187,49 +187,43 @@ class operaciones:
 
 
 
-    #---------Prueba-------------------------------------------------------------------------------------
-    
+        
     def funcion_buscar(
         self,
         tree,
-        busqueda,
+        mensajes,
+        horario
     ):
 
-        busqueda = busqueda.get()
+        mensajes_busqueda = mensajes.get().strip()
+        horario_busqueda = horario.get().strip()
         records = tree.get_children()
-        global my_data
+        
         for element in records:
             tree.delete(element)
-            buscar = (
-                Clientes.select().where(Clientes.id.contains(busqueda))
-                | Clientes.select().where(Clientes.cuenta.contains(busqueda))
-                | Clientes.select().where(Clientes.reparto.contains(busqueda))
-                | Clientes.select().where(Clientes.numero_de_cliente.contains(busqueda))
-                | Clientes.select().where(Clientes.sucursal.contains(busqueda))
-                | Clientes.select().where(Clientes.razonsocial.contains(busqueda))
-                | Clientes.select().where(Clientes.direccion.contains(busqueda))
-                | Clientes.select().where(Clientes.localidad.contains(busqueda))
-            )
-            buscar.execute()
-        try:
-            for fila in buscar:
-                tree.insert(
-                    "",
-                    "end",
-                    text=fila.id,
-                    values=(
-                        fila.cuenta,
-                        fila.reparto,
-                        fila.numero_de_cliente,
-                        fila.sucursal,
-                        fila.razonsocial,
-                        fila.direccion,
-                        fila.localidad,
-                    ),
-                )
-        except:
-            print(f"No se enontro ningun registro con la busqueda: '{busqueda}'")
-        else:
-            print(
-                f"El resultado es :  ID={fila.id}, Cuenta={fila.cuenta}, Reparto={fila.reparto}, Razon Social={fila.razonsocial}"
-            )
+            consulta = Mensajes.select()
+            if mensajes_busqueda:
+                consulta = consulta.where(Mensajes.mensajes.contains(mensajes_busqueda))
+            if horario_busqueda:
+                consulta = consulta.where(Mensajes.horario.contains(horario_busqueda))
+                try:
+                    resultados = list(consulta)
+                    if resultados:
+                        for fila in resultados:
+                            tree.insert(
+                            "",
+                            "end",
+                            text=fila.id,
+                            values=(fila.mensajes, fila.horario),
+                        )
+                        return f"Se encontraron {len(resultados)} registros."
+                    else:
+                        return "No se encontraron registros con los criterios proporcionados."
+                except Exception as e:
+                    print(f"Error al ejecutar la busqueda: {e}")
+                    return "Ocurrio un error al realizar la busqueda."
+
+            
+            
+            
+            
