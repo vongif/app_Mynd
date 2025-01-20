@@ -192,37 +192,38 @@ class operaciones:
         self,
         tree,
         mensajes,
-        horario
-    ):
+        horario_busqueda
+        ):
 
         mensajes_busqueda = mensajes.get().strip()
-        horario_busqueda = horario.get().strip()
+        horario = horario_busqueda.get().strip()
+        
         records = tree.get_children()
         
         for element in records:
             tree.delete(element)
+            
+            
+        try:
             consulta = Mensajes.select()
             if mensajes_busqueda:
                 consulta = consulta.where(Mensajes.mensajes.contains(mensajes_busqueda))
-            if horario_busqueda:
-                consulta = consulta.where(Mensajes.horario.contains(horario_busqueda))
-                try:
-                    resultados = list(consulta)
-                    if resultados:
-                        for fila in resultados:
-                            tree.insert(
-                            "",
-                            "end",
-                            text=fila.id,
-                            values=(fila.mensajes, fila.horario),
-                        )
-                        return f"Se encontraron {len(resultados)} registros."
-                    else:
-                        return "No se encontraron registros con los criterios proporcionados."
-                except Exception as e:
-                    print(f"Error al ejecutar la busqueda: {e}")
-                    return "Ocurrio un error al realizar la busqueda."
 
+            if horario:
+                consulta = consulta.where(Mensajes.horario.contains(horario))    
+                
+            for fila in consulta:
+                tree.insert(
+                    "",
+                    "end",
+                    text=fila.id,
+                    values=(fila.mensajes, fila.horario),
+                )
+                      
+        except Exception as e:
+            print(f"Error al ejecutar la busqueda: {e}")
+                    
+    
             
             
             
