@@ -12,7 +12,7 @@ from datetime import datetime
 import time
 from plyer import notification
 import threading
-from customtkinter import CTk, CTkSwitch, CTkFrame
+
 
 
 
@@ -21,12 +21,17 @@ class Ventana:
     def __init__(self, ventana):
         #self.objeto_uno = operaciones()
         self.aplicacion = ventana
-        self.aplicacion.geometry("800x600")
+        self.aplicacion.geometry("")
+        self.aplicacion.update_idletasks()     
+        self.aplicacion.grid_propagate(True)
+
 
         self.valor_mensajes = StringVar()
         self.valor_busqueda = StringVar()
         self.valor_horario = StringVar()
         self.valor_busqueda_horario = StringVar()
+        self.valor_telefono = StringVar()
+        self.valor_busqueda_telefono = StringVar()
 
                 
         self.objeto_uno = operaciones(self.valor_mensajes, self.valor_horario)
@@ -56,24 +61,36 @@ class Ventana:
         self.entry_horario = ttk.Entry(self.aplicacion, textvariable=self.valor_horario, width=50)
         self.entry_horario.grid(row=2, column=1, columnspan=3, padx=5, pady=5, sticky="ew")
 
+        # Entrada numero de telefono
+        ttk.Label(self.aplicacion, text="Telefono:", anchor="w").grid(row=3, column=0, padx=10, pady=5, sticky="w")
+        self.entry_horario = ttk.Entry(self.aplicacion, textvariable=self.valor_telefono, width=50)
+        self.entry_horario.grid(row=3, column=1, columnspan=3, padx=5, pady=5, sticky="ew")
+
         
         # Entrada de búsqueda
         
-        ttk.Label(self.aplicacion, text="Buscar Mensaje:", anchor="w").grid(row=3, column=0, sticky="w", padx=10, pady=5)
+        ttk.Label(self.aplicacion, text="Buscar Mensaje:", anchor="w").grid(row=4, column=0, sticky="w", padx=10, pady=5)
         self.entry_busqueda = ttk.Entry(self.aplicacion, textvariable=self.valor_busqueda, width=50)
-        self.entry_busqueda.grid(row=3, column=1, padx=5, pady=5, sticky="ew")
+        self.entry_busqueda.grid(row=4, column=1, padx=5, pady=5, sticky="ew")
         self.valor_busqueda.trace("w", lambda *args: self.actualizar_busqueda())
 
         # Entrada de búsqueda del horario
-        ttk.Label(self.aplicacion, text="Buscar Horario:", anchor="w").grid(row=3, column=2, sticky="w", padx=10, pady=5)
+        ttk.Label(self.aplicacion, text="Buscar Horario:", anchor="w").grid(row=5, column=0, sticky="w", padx=10, pady=5)
         self.entry_busqueda_horario = ttk.Entry(self.aplicacion, textvariable=self.valor_busqueda_horario, width=50)
-        self.entry_busqueda_horario.grid(row=3, column=3, padx=5, pady=5, sticky="ew")
+        self.entry_busqueda_horario.grid(row=5, column=1, padx=5, pady=5, sticky="ew")
         self.valor_busqueda_horario.trace("w", lambda *args: self.actualizar_busqueda())
+
+        # Entrada de búsqueda del telefono
+        
+        ttk.Label(self.aplicacion, text="Buscar Telefono:", anchor="w").grid(row=6, column=0, sticky="w", padx=10, pady=5)
+        self.entry_busqueda = ttk.Entry(self.aplicacion, textvariable=self.valor_busqueda_telefono, width=50)
+        self.entry_busqueda.grid(row=6, column=1, padx=5, pady=5, sticky="ew")
+        self.valor_busqueda.trace("w", lambda *args: self.actualizar_busqueda())
 
 
         # Frame para los botones
         self.botones_frame = Frame(self.aplicacion)
-        self.botones_frame.grid(row=4, column=0, columnspan=4, pady=10, sticky="ew")
+        self.botones_frame.grid(row=7, column=0, columnspan=4, pady=10, sticky="ew")
 
         # Botones dentro del Frame
         self.boton_alta = Button(self.botones_frame, text="Alta", bg="royal blue", fg="white", command=lambda: self.aviso_alta(self.valor_mensajes, self.entry_horario, self.tree))
@@ -94,7 +111,10 @@ class Ventana:
         self.aplicacion.grid_rowconfigure(2, weight=0)
         self.aplicacion.grid_rowconfigure(3, weight=0)
         self.aplicacion.grid_rowconfigure(4, weight=1)
-        self.aplicacion.grid_rowconfigure(5, weight=0)  # Fila para el botón de salir
+        self.aplicacion.grid_rowconfigure(5, weight=0)  
+        self.aplicacion.grid_rowconfigure(6, weight=0)
+        self.aplicacion.grid_rowconfigure(7, weight=0)
+
 
         self.aplicacion.grid_columnconfigure(0, weight=1)
         self.aplicacion.grid_columnconfigure(1, weight=3)
@@ -103,21 +123,23 @@ class Ventana:
         
 
         # TREEVIEW
-        self.tree = ttk.Treeview(self.aplicacion, columns=("col1", "col2"), show="headings")
+        self.tree = ttk.Treeview(self.aplicacion, columns=("col1", "col2", "col3"), show="headings")
         self.tree.heading("col1", text="Mensaje")
         self.tree.column("col1", width=300, anchor="w")
         self.tree.heading("col2", text="Horario")
         self.tree.column("col2", width=100, anchor="center")
-        self.tree.grid(row=5, column=0, columnspan=4, padx=5, pady=10, sticky="nsew")
+        self.tree.heading("col3", text="Telefono")
+        self.tree.column("col3", width=100, anchor="w")
+        self.tree.grid(row=8, column=0, columnspan=4, padx=5, pady=10, sticky="nsew")
 
         # Scrollbar
         self.scroll = ttk.Scrollbar(self.aplicacion, orient="vertical", command=self.tree.yview)
-        self.scroll.grid(row=5, column=4, sticky="ns")
+        self.scroll.grid(row=8, column=4, sticky="ns")
         self.tree.config(yscrollcommand=self.scroll.set)
 
         # Botón de salir
         self.boton_salir = Button(self.aplicacion, text="Salir", bg="RoyalBlue", fg="white", command=self.aplicacion.quit)
-        self.boton_salir.grid(row=6, column=3, padx=30, pady=10, sticky="e")   
+        self.boton_salir.grid(row=9, column=3, padx=30, pady=10, sticky="e")   
         
 
         
@@ -129,9 +151,10 @@ class Ventana:
 
     # METODOS-----------------------------------------------------------
 
-    def aviso_alta(self, valor_mensajes, valor_horario, tree):
+    def aviso_alta(self, valor_mensajes, valor_horario, valor_telefono, tree):
         mensaje = self.valor_mensajes.get().strip()
         horario = self.valor_horario.get().strip()
+        telefono = self.valor_telefono.get().strip()
 
         # Verificar que ambos campos estén completos
         if not mensaje or not horario:
@@ -149,6 +172,7 @@ class Ventana:
         retorno = self.objeto_uno.funcion_alta(
         self.valor_mensajes,
         self.valor_horario,
+        self.valor_busqueda_telefono,
         tree,
         )
 
@@ -160,9 +184,7 @@ class Ventana:
             messagebox.showinfo("Base Clientes", retorno)
 
         
-        
-        self.agregar_switch_a_fila(len(self.tree.get_children()) - 1)    
-    
+                  
 
 
     def aviso_borrar(self, tree):
@@ -179,8 +201,10 @@ class Ventana:
             item = self.tree.item(seleccionado[0])  # Obtiene datos del registro
             mensaje = item["values"][0]  # Extrae el valor del mensaje
             horario = item["values"][1]
+            telefono = item["values"][2]
             self.valor_mensajes.set(mensaje) 
             self.valor_horario.set(horario)
+            self.valor_busqueda_telefono.set(telefono)
              # Muestra el mensaje en el Entry
     
                
@@ -189,6 +213,7 @@ class Ventana:
         retorno = self.objeto_uno.funcion_modificar(
             self.valor_mensajes,
             self.valor_horario,
+            self.valor_telefono,
             self.tree,
         )
         messagebox.showinfo("Base Clientes", retorno)
@@ -203,14 +228,14 @@ class Ventana:
 
 
     def actualizar_busqueda(self):
-        self.objeto_uno.funcion_buscar(self.tree, self.valor_busqueda, self.valor_busqueda_horario)
+        self.objeto_uno.funcion_buscar(self.tree, self.valor_busqueda, self.valor_busqueda_horario, self.valor_busqueda_telefono)
 
 
 
 
 # Código para inicializar la ventana
 if __name__ == "__main__":
-    root = CTk()
+    root = Tk()
     app = Ventana(root)
     root.mainloop()
 
