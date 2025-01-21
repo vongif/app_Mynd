@@ -10,6 +10,8 @@ from tkinter import Tk, Label, Button, Toplevel
 import threading
 from threading import Thread
 import tkinter as tk
+import pywhatkit
+import pywhatkit as kit
 
 
 db = SqliteDatabase("base_ejemplo.db")
@@ -61,17 +63,57 @@ class operaciones:
                     datetime.strptime(hora, "%H:%M") 
                 except ValueError:
                     return "Error: El horario debe estar en formato HH:MM."
+                
 
-                nuevo_mensaje = Mensajes(mensajes=texto, horario=hora, telefono=phone)
+                if not phone.isdigit() or len(phone) != 8:  # Asegurarse de que tenga solo 8 dígitos
+                    return "Error: El número de teléfono debe contener 8 dígitos y no incluir prefijos."
+
+                # Agregar automáticamente los prefijos
+                codigo_pais = "54"  # Código de país
+                codigo_area = "11"  # Código de área (ajústalo según sea necesario)
+                telefono_completo = f"{codigo_pais}{codigo_area}{phone}"
+                nuevo_mensaje = Mensajes(mensajes=texto, horario=hora, telefono=telefono_completo)
+
+                #nuevo_mensaje = Mensajes(mensajes=texto, horario=hora, telefono=phone)
                 nuevo_mensaje.save()
 
                 self.funcion_actualizar(tree)
                 mensajes.set("")  # Limpia el campo después de guardar
                 horario.set("")
                 telefono.set("")
+
+                current_time = datetime.now().strftime("%H:%M")
+                if current_time == hora:
+                    # Enviar mensaje de WhatsApp si la hora coincide
+                    self.funcion_enviar(telefono_completo, texto)
+        
+
+
                 return "Registro dado de alta"
         else:
                 return "Error: El mensaje no cumple con el formato."
+
+
+
+
+    def funcion_enviar(self, telefono, mensaje):
+        try:
+            kit.sendwhatmsg_instantly(
+                phone_no=f"+{telefono}",
+                message=mensaje,
+                wait_time=20,  # Tiempo de espera en segundos antes de enviar
+                tab_close=True  # Cierra la pestaña tras enviar
+            )
+            # Agregar un pequeño retraso para asegurarse de que el mensaje se haya enviado correctamente
+            time.sleep(5)  # Espera 5 segundos para asegurarse de que el mensaje se envíe
+
+            # Ahora cerrar la pestaña
+            kit.close_tab()  # Si kit tiene una función close_tab(), úsala para cerrar la pestaña
+
+            return "Mensaje enviado correctamente."
+        except Exception as e:
+            return f"Error al enviar el mensaje: {str(e)}"    
+
 
 
 
@@ -233,8 +275,43 @@ class operaciones:
                       
         except Exception as e:
             print(f"Error al ejecutar la busqueda: {e}")
+
+
+
+
+
+    def enviar_mensaje_whatsapp(self, mensaje, numero):
+        try:
+            hora_actual = datetime.now()
+            hora_envio = hora_actual.hour
+            minuto_envio = hora_actual.minute + 1  # Envía el mensaje un minuto después de la ejecución
+            
+            # Envía el mensaje
+            pywhatkit.sendwhatmsg(
+                phone_no=f"+{numero}",  # Asegúrate de usar el formato internacional del número
+                message=mensaje,
+                time_hour=hora_envio,
+                time_min=minuto_envio,
+            )
+            print(f"Mensaje enviado a {numero}: {mensaje}")
+        except Exception as e:
+            print(f"Error al enviar el mensaje de WhatsApp: {e}")
+
+
+
+
+    def verificar_horario(self):
+        while True:
+            registros = Mensajes.select()  # Recupera todos los mensajes y horarios
+            for registro in registros:
+                if registro.horario == datetime.now().strftime("%H:%M"):
+                    # Llama al método para enviar el mensaje por WhatsApp
+                    self.enviar_mensaje_whatsapp(registro.mensajes, registro.telefono)
                     
-    
+                    # También muestra la notificación en la aplicación
+                    Thread(target=self.mostrar_notificacion, args=(registro.mensajes,)).start()
+                
+            time.sleep(30) 
             
             
             

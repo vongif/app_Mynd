@@ -62,7 +62,7 @@ class Ventana:
         self.entry_horario.grid(row=2, column=1, columnspan=3, padx=5, pady=5, sticky="ew")
 
         # Entrada numero de telefono
-        ttk.Label(self.aplicacion, text="Telefono:", anchor="w").grid(row=3, column=0, padx=10, pady=5, sticky="w")
+        ttk.Label(self.aplicacion, text="Telefono: ", anchor="w").grid(row=3, column=0, padx=10, pady=5, sticky="w")
         self.entry_horario = ttk.Entry(self.aplicacion, textvariable=self.valor_telefono, width=50)
         self.entry_horario.grid(row=3, column=1, columnspan=3, padx=5, pady=5, sticky="ew")
 
