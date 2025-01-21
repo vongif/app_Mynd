@@ -34,7 +34,7 @@ class Ventana:
         self.valor_busqueda_telefono = StringVar()
 
                 
-        self.objeto_uno = operaciones(self.valor_mensajes, self.valor_horario)
+        self.objeto_uno = operaciones(self.valor_mensajes, self.valor_horario, self.valor_telefono)
 
         self.titulo = Label(
             self.aplicacion,
@@ -83,9 +83,9 @@ class Ventana:
         # Entrada de búsqueda del telefono
         
         ttk.Label(self.aplicacion, text="Buscar Telefono:", anchor="w").grid(row=6, column=0, sticky="w", padx=10, pady=5)
-        self.entry_busqueda = ttk.Entry(self.aplicacion, textvariable=self.valor_busqueda_telefono, width=50)
-        self.entry_busqueda.grid(row=6, column=1, padx=5, pady=5, sticky="ew")
-        self.valor_busqueda.trace("w", lambda *args: self.actualizar_busqueda())
+        self.entry_busqueda_telefono = ttk.Entry(self.aplicacion, textvariable=self.valor_busqueda_telefono, width=50)
+        self.entry_busqueda_telefono.grid(row=6, column=1, padx=5, pady=5, sticky="ew")
+        self.valor_busqueda_telefono.trace("w", lambda *args: self.actualizar_busqueda())
 
 
         # Frame para los botones
@@ -93,7 +93,7 @@ class Ventana:
         self.botones_frame.grid(row=7, column=0, columnspan=4, pady=10, sticky="ew")
 
         # Botones dentro del Frame
-        self.boton_alta = Button(self.botones_frame, text="Alta", bg="royal blue", fg="white", command=lambda: self.aviso_alta(self.valor_mensajes, self.entry_horario, self.tree))
+        self.boton_alta = Button(self.botones_frame, text="Alta", bg="royal blue", fg="white", command=lambda: self.aviso_alta(self.valor_mensajes, self.entry_horario, self.valor_telefono, self.tree))
         self.boton_alta.grid(row=0, column=0, padx=5, pady=5)
 
         self.boton_modificar = Button(self.botones_frame, text="Modificar", bg="royal blue", fg="white", command=lambda: self.aviso_modificar())
@@ -146,8 +146,7 @@ class Ventana:
         # Asocia el evento <<TreeviewSelect>> al TreeView
         self.tree.bind("<<TreeviewSelect>>", self.seleccionar_registro)
 
-   
-            
+              
 
     # METODOS-----------------------------------------------------------
 
@@ -172,7 +171,7 @@ class Ventana:
         retorno = self.objeto_uno.funcion_alta(
         self.valor_mensajes,
         self.valor_horario,
-        self.valor_busqueda_telefono,
+        self.valor_telefono,
         tree,
         )
 
@@ -204,7 +203,7 @@ class Ventana:
             telefono = item["values"][2]
             self.valor_mensajes.set(mensaje) 
             self.valor_horario.set(horario)
-            self.valor_busqueda_telefono.set(telefono)
+            self.valor_telefono.set(telefono)
              # Muestra el mensaje en el Entry
     
                

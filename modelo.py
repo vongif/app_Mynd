@@ -24,6 +24,7 @@ class Mensajes(BaseModel):
     
         mensajes = CharField()
         horario = CharField()
+        telefono = CharField()
 
 
 db.connect()
@@ -31,10 +32,11 @@ db.create_tables([Mensajes])
 
 
 class operaciones:
-    def __init__(self, valor_mensajes, valor_horario):
+    def __init__(self, valor_mensajes, valor_horario, valor_telefono):
 
         self.valor_mensajes = valor_mensajes  # Inicializa las variables
         self.valor_horario = valor_horario
+        self.valor_telefono = valor_telefono
         
         self.iniciar_verificacion()
         
@@ -43,9 +45,10 @@ class operaciones:
    
 
 
-    def funcion_alta(self, mensajes, horario, tree):
+    def funcion_alta(self, mensajes, horario, telefono, tree):
         texto = mensajes.get().strip()  # Ahora obtendrás el texto del StringVar
         hora = horario.get().strip()
+        phone = telefono.get().strip()
         
         if not texto or not hora:
             return "Error: El mensaje o el Horario estan vacios."
@@ -59,12 +62,13 @@ class operaciones:
                 except ValueError:
                     return "Error: El horario debe estar en formato HH:MM."
 
-                nuevo_mensaje = Mensajes(mensajes=texto, horario=hora)
+                nuevo_mensaje = Mensajes(mensajes=texto, horario=hora, telefono=phone)
                 nuevo_mensaje.save()
 
                 self.funcion_actualizar(tree)
                 mensajes.set("")  # Limpia el campo después de guardar
                 horario.set("")
+                telefono.set("")
                 return "Registro dado de alta"
         else:
                 return "Error: El mensaje no cumple con el formato."
@@ -84,6 +88,7 @@ class operaciones:
                 values=(
                     fila.mensajes,
                     fila.horario,
+                    fila.telefono,
                 ),
             )
 
@@ -112,12 +117,13 @@ class operaciones:
         self,
         mensajes,
         horario,
+        telefono,
         tree,
     ):
         cliente = tree.selection()
         item = tree.item(cliente)
         mi_id = item["text"]
-        actualizar = Mensajes.update(mensajes=mensajes.get(), horario=horario.get()).where(Mensajes.id == mi_id)
+        actualizar = Mensajes.update(mensajes=mensajes.get(), horario=horario.get(), telefono=telefono.get()).where(Mensajes.id == mi_id)
         actualizar.execute() 
         
         self.funcion_actualizar(tree)
@@ -192,12 +198,13 @@ class operaciones:
         self,
         tree,
         mensajes,
-        horario_busqueda
+        horario_busqueda,
+        telefono_busqueda,
         ):
 
         mensajes_busqueda = mensajes.get().strip()
         horario = horario_busqueda.get().strip()
-        
+        telefono = telefono_busqueda.get().strip()
         records = tree.get_children()
         
         for element in records:
@@ -210,14 +217,18 @@ class operaciones:
                 consulta = consulta.where(Mensajes.mensajes.contains(mensajes_busqueda))
 
             if horario:
-                consulta = consulta.where(Mensajes.horario.contains(horario))    
+                consulta = consulta.where(Mensajes.horario.contains(horario))
+
+            if telefono:
+                consulta = consulta.where(Mensajes.telefono.contains(telefono))            
+
                 
             for fila in consulta:
                 tree.insert(
                     "",
                     "end",
                     text=fila.id,
-                    values=(fila.mensajes, fila.horario),
+                    values=(fila.mensajes, fila.horario, fila.telefono),
                 )
                       
         except Exception as e:
