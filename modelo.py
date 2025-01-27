@@ -1,3 +1,5 @@
+
+
 import sqlite3
 import re
 from peewee import *
@@ -12,7 +14,6 @@ from threading import Thread
 import tkinter as tk
 import pywhatkit
 import pywhatkit as kit
-
 
 db = SqliteDatabase("base_ejemplo.db")
 
@@ -313,6 +314,5 @@ class operaciones:
                 
             time.sleep(30) 
             
-            
-            
-            
+
+

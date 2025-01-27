@@ -10,8 +10,9 @@ from tkinter import Frame
 from modelo import operaciones
 from datetime import datetime
 import time
-from plyer import notification
+from plyer import *
 import threading
+import customtkinter as ctk
 
 
 
@@ -24,6 +25,8 @@ class Ventana:
         self.aplicacion.geometry("")
         self.aplicacion.update_idletasks()     
         self.aplicacion.grid_propagate(True)
+        self.aplicacion.configure(bg="black")  # Fondo negro de la ventana
+        
 
 
         self.valor_mensajes = StringVar()
@@ -32,6 +35,32 @@ class Ventana:
         self.valor_busqueda_horario = StringVar()
         self.valor_telefono = StringVar()
         self.valor_busqueda_telefono = StringVar()
+
+
+
+
+        estilo = ttk.Style()
+        estilo.theme_use("clam")  # Tema compatible con estilos personalizados
+        estilo.configure(
+            "Treeview",
+            background="black",
+            foreground="white",
+            fieldbackground="black",
+            rowheight=25,
+            font=("fixedsys", 10),
+        )
+        estilo.configure(
+            "Treeview.Heading",
+            background="royal blue",
+            foreground="white",
+            font=("fixedsys", 10),
+        )
+        estilo.map("Treeview", background=[("selected", "gray42")])
+        estilo.configure("TButton", relief="flat", background="black", foreground="white")
+        
+
+
+
 
                 
         self.objeto_uno = operaciones(self.valor_mensajes, self.valor_horario, self.valor_telefono)
@@ -43,7 +72,7 @@ class Ventana:
             fg="White",
             height=2,
             width=55,
-            font=("Arial", 16, "bold"),
+            font=("Helvetica", 17, "bold"),
         )
         self.titulo.grid(
             row=0, column=0, columnspan=4, sticky="we", padx=5, pady=5
@@ -52,44 +81,45 @@ class Ventana:
 
         
         # Entrada de mensaje
-        Label(self.aplicacion, text="Mensaje:", anchor="w").grid(row=1, column=0, sticky="w", padx=10, pady=5)
+        Label(self.aplicacion, text="Mensaje:", anchor="w", bg="black", fg="white").grid(row=1, column=0, sticky="w", padx=10, pady=5)
         self.entry_mensajes = ttk.Entry(self.aplicacion, textvariable=self.valor_mensajes, width=50)
         self.entry_mensajes.grid(row=1, column=1, columnspan=3, padx=5, pady=5, sticky="ew")
 
         # Entrada de horario
-        ttk.Label(self.aplicacion, text="Horario (HH:MM):", anchor="w").grid(row=2, column=0, padx=10, pady=5, sticky="w")
+        Label(self.aplicacion, text="Horario (HH:MM):", anchor="w", bg="black", fg="white").grid(row=2, column=0, padx=10, pady=5, sticky="w")
         self.entry_horario = ttk.Entry(self.aplicacion, textvariable=self.valor_horario, width=50)
         self.entry_horario.grid(row=2, column=1, columnspan=3, padx=5, pady=5, sticky="ew")
 
         # Entrada numero de telefono
-        ttk.Label(self.aplicacion, text="Telefono: ", anchor="w").grid(row=3, column=0, padx=10, pady=5, sticky="w")
+        Label(self.aplicacion, text="Telefono: ", anchor="w", bg="black", fg="white").grid(row=3, column=0, padx=10, pady=5, sticky="w")
         self.entry_horario = ttk.Entry(self.aplicacion, textvariable=self.valor_telefono, width=50)
         self.entry_horario.grid(row=3, column=1, columnspan=3, padx=5, pady=5, sticky="ew")
 
         
         # Entrada de búsqueda
         
-        ttk.Label(self.aplicacion, text="Buscar Mensaje:", anchor="w").grid(row=4, column=0, sticky="w", padx=10, pady=5)
-        self.entry_busqueda = ttk.Entry(self.aplicacion, textvariable=self.valor_busqueda, width=50)
+        Label(self.aplicacion, text="Buscar Mensaje:", anchor="w", bg="black", fg="white").grid(row=4, column=0, sticky="w", padx=10, pady=5)
+        self.entry_busqueda = Entry(self.aplicacion, textvariable=self.valor_busqueda, width=50, background="gray60", fg="gray90", borderwidth=3, relief="sunken",)
         self.entry_busqueda.grid(row=4, column=1, padx=5, pady=5, sticky="ew")
         self.valor_busqueda.trace("w", lambda *args: self.actualizar_busqueda())
 
         # Entrada de búsqueda del horario
-        ttk.Label(self.aplicacion, text="Buscar Horario:", anchor="w").grid(row=5, column=0, sticky="w", padx=10, pady=5)
-        self.entry_busqueda_horario = ttk.Entry(self.aplicacion, textvariable=self.valor_busqueda_horario, width=50)
+        Label(self.aplicacion, text="Buscar Horario:", anchor="w", bg="black", fg="white").grid(row=5, column=0, sticky="w", padx=10, pady=5)
+        self.entry_busqueda_horario = Entry(self.aplicacion, textvariable=self.valor_busqueda_horario, width=50, background="gray60", fg="gray90", borderwidth=3, relief="sunken",)
         self.entry_busqueda_horario.grid(row=5, column=1, padx=5, pady=5, sticky="ew")
         self.valor_busqueda_horario.trace("w", lambda *args: self.actualizar_busqueda())
 
         # Entrada de búsqueda del telefono
         
-        ttk.Label(self.aplicacion, text="Buscar Telefono:", anchor="w").grid(row=6, column=0, sticky="w", padx=10, pady=5)
-        self.entry_busqueda_telefono = ttk.Entry(self.aplicacion, textvariable=self.valor_busqueda_telefono, width=50)
+        Label(self.aplicacion, text="Buscar Telefono:", anchor="w", bg="black", fg="white").grid(row=6, column=0, sticky="w", padx=10, pady=5)
+        self.entry_busqueda_telefono = Entry(self.aplicacion, textvariable=self.valor_busqueda_telefono, width=50, background="gray60", fg="gray90", borderwidth=3, relief="sunken",)
         self.entry_busqueda_telefono.grid(row=6, column=1, padx=5, pady=5, sticky="ew")
         self.valor_busqueda_telefono.trace("w", lambda *args: self.actualizar_busqueda())
 
 
         # Frame para los botones
-        self.botones_frame = Frame(self.aplicacion)
+
+        self.botones_frame = Frame(self.aplicacion, bg="black")
         self.botones_frame.grid(row=7, column=0, columnspan=4, pady=10, sticky="ew")
 
         # Botones dentro del Frame
@@ -124,11 +154,11 @@ class Ventana:
 
         # TREEVIEW
         self.tree = ttk.Treeview(self.aplicacion, columns=("col1", "col2", "col3"), show="headings")
-        self.tree.heading("col1", text="Mensaje")
+        self.tree.heading("col1", text="Mensaje", anchor="w")
         self.tree.column("col1", width=300, anchor="w")
-        self.tree.heading("col2", text="Horario")
+        self.tree.heading("col2", text="Horario", anchor="w")
         self.tree.column("col2", width=100, anchor="center")
-        self.tree.heading("col3", text="Telefono")
+        self.tree.heading("col3", text="Telefono", anchor="w")
         self.tree.column("col3", width=100, anchor="w")
         self.tree.grid(row=8, column=0, columnspan=4, padx=5, pady=10, sticky="nsew")
 
@@ -138,7 +168,7 @@ class Ventana:
         self.tree.config(yscrollcommand=self.scroll.set)
 
         # Botón de salir
-        self.boton_salir = Button(self.aplicacion, text="Salir", bg="RoyalBlue", fg="white", command=self.aplicacion.quit)
+        self.boton_salir = Button(self.aplicacion, text="Salir", bg="RoyalBlue", fg="white", width=20, command=self.aplicacion.quit)
         self.boton_salir.grid(row=9, column=3, padx=30, pady=10, sticky="e")   
         
 
@@ -237,5 +267,8 @@ if __name__ == "__main__":
     root = Tk()
     app = Ventana(root)
     root.mainloop()
+
+
+
 
 
